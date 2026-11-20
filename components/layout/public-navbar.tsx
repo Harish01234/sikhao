@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { MenuIcon } from "lucide-react"
 
+import { AccountMenu, type AccountUser } from "@/components/layout/account-menu"
 import { BrandLogo } from "@/components/layout/brand-logo"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -14,10 +15,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { authClient } from "@/lib/auth-client"
+import { isAppRole } from "@/lib/auth-role"
 import { cn } from "@/lib/utils"
 
 export function PublicNavbar() {
   const [open, setOpen] = React.useState(false)
+  const { data: session, isPending } = authClient.useSession()
+  const user = !isPending && session ? accountUser(session.user) : null
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
@@ -27,18 +32,21 @@ export function PublicNavbar() {
         </Link>
         <div className="hidden items-center gap-2 md:flex">
           <ThemeToggle />
-          <Link
-            href="/sign-in"
-            className={cn(buttonVariants({ variant: "secondary" }))}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/sign-up"
-            className={cn(buttonVariants())}
-          >
-            Sign up
-          </Link>
+          {user ? (
+            <AccountMenu user={user} />
+          ) : (
+            <>
+              <Link
+                href="/sign-in"
+                className={cn(buttonVariants({ variant: "secondary" }))}
+              >
+                Sign in
+              </Link>
+              <Link href="/sign-up" className={cn(buttonVariants())}>
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
@@ -59,20 +67,26 @@ export function PublicNavbar() {
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-2 px-4">
-                <Link
-                  href="/sign-in"
-                  onClick={() => setOpen(false)}
-                  className={cn(buttonVariants({ variant: "secondary" }))}
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/sign-up"
-                  onClick={() => setOpen(false)}
-                  className={cn(buttonVariants())}
-                >
-                  Sign up
-                </Link>
+                {user ? (
+                  <AccountMenu user={user} trigger="sheet" />
+                ) : (
+                  <>
+                    <Link
+                      href="/sign-in"
+                      onClick={() => setOpen(false)}
+                      className={cn(buttonVariants({ variant: "secondary" }))}
+                    >
+                      Sign in
+                    </Link>
+                    <Link
+                      href="/sign-up"
+                      onClick={() => setOpen(false)}
+                      className={cn(buttonVariants())}
+                    >
+                      Sign up
+                    </Link>
+                  </>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
@@ -80,4 +94,19 @@ export function PublicNavbar() {
       </div>
     </header>
   )
+}
+
+function accountUser(user: {
+  name: string
+  email: string
+  image?: string | null
+}): AccountUser {
+  const role = "role" in user ? user.role : null
+
+  return {
+    name: user.name,
+    email: user.email,
+    image: user.image ?? null,
+    role: typeof role === "string" && isAppRole(role) ? role : null,
+  }
 }

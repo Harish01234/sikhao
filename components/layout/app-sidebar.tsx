@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboardIcon } from "lucide-react"
 
+import { AccountMenu, type AccountUser } from "@/components/layout/account-menu"
 import { BrandLogo } from "@/components/layout/brand-logo"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import {
@@ -30,16 +31,18 @@ export type AppNavItem = {
 export function AppShell({
   label,
   items,
+  user,
   children,
 }: {
   label: string
   items: AppNavItem[]
+  user: AccountUser
   children: React.ReactNode
 }) {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <AppSidebar label={label} items={items} />
+        <AppSidebar label={label} items={items} user={user} />
         <SidebarInset>
           <header className="flex h-14 shrink-0 items-center border-b border-border bg-background px-4">
             <SidebarTrigger />
@@ -54,9 +57,11 @@ export function AppShell({
 function AppSidebar({
   label,
   items,
+  user,
 }: {
   label: string
   items: AppNavItem[]
+  user: AccountUser
 }) {
   const pathname = usePathname()
   const homeHref = items[0]?.href ?? "/"
@@ -104,6 +109,7 @@ function AppSidebar({
       </SidebarContent>
       <SidebarFooter>
         <ThemeToggle />
+        <AccountMenu user={user} trigger="sidebar" />
       </SidebarFooter>
     </Sidebar>
   )
