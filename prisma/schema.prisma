@@ -24,6 +24,10 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  coursesTaught  Course[]
+  enrollments    CourseEnrollment[]
+  lessonProgress LessonProgress[]
+
   @@unique([email])
   @@map("user")
 }
@@ -76,4 +80,131 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum LessonType {
+  video
+  scorm
+}
+
+enum ScormVersion {
+  v1_2  @map("1.2")
+  v2004 @map("2004")
+}
+
+enum EnrollmentStatus {
+  active
+  completed
+  cancelled
+}
+
+model Course {
+  id           String  @id @default(cuid())
+  title        String
+  description  String?
+  price        Decimal @db.Decimal(10, 2)
+  instructorId String
+  instructor   User    @relation(fields: [instructorId], references: [id], onDelete: Restrict)
+
+  modules     Module[]
+  enrollments CourseEnrollment[]
+
+  @@index([instructorId])
+  @@map("course")
+}
+
+model Module {
+  id       String @id @default(cuid())
+  title    String
+  courseId String
+  position Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lessons Lesson[]
+
+  @@unique([courseId, position])
+  @@index([courseId])
+  @@map("module")
+}
+
+model Lesson {
+  id       String     @id @default(cuid())
+  title    String
+  moduleId String
+  position Int
+  type     LessonType
+  module   Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  video    VideoLesson?
+  scorm    ScormLesson?
+  progress LessonProgress[]
+
+  @@unique([moduleId, position])
+  @@index([moduleId])
+  @@map("lesson")
+}
+
+model VideoLesson {
+  lessonId String @id
+  videoUrl String
+  length   Int
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("video_lesson")
+}
+
+model ScormLesson {
+  lessonId     String       @id
+  packageUrl   String
+  entryPoint   String
+  scormVersion ScormVersion
+  lesson       Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("scorm_lesson")
+}
+
+model CourseEnrollment {
+  id        String           @id @default(cuid())
+  courseId  String
+  learnerId String
+  price     Decimal          @db.Decimal(10, 2)
+  status    EnrollmentStatus
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  learner   User             @relation(fields: [learnerId], references: [id], onDelete: Restrict)
+
+  @@unique([learnerId, courseId])
+  @@index([courseId])
+  @@index([learnerId])
+  @@map("course_enrollment")
+}
+
+model LessonProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  lessonId       String
+  isCompleted    Boolean  @default(false)
+  watchedSeconds Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  scormProgress ScormProgress?
+
+  @@unique([userId, lessonId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+model ScormProgress {
+  lessonProgressId String         @id
+  completionStatus String
+  score            Decimal?       @db.Decimal(5, 2)
+  location         String?
+  suspendData      String         @db.Text
+  lessonProgress   LessonProgress @relation(fields: [lessonProgressId], references: [id], onDelete: Cascade)
+
+  @@map("scorm_progress")
 }
