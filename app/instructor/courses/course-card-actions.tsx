@@ -29,25 +29,25 @@ export function CourseCardActions({ courseId }: { courseId: string }) {
   }
 
   return (
-    <div className="flex w-full flex-col gap-2">
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <div className="flex flex-col gap-2 sm:flex-row">
+    <div className="flex flex-col items-end gap-1">
+      <div className="flex items-center gap-2">
         <Link
           href={`/instructor/courses/${courseId}/edit`}
-          className={cn(buttonVariants({ variant: "outline" }), "w-full sm:w-auto")}
+          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
         >
           Edit
         </Link>
         <Button
           type="button"
           variant="destructive"
-          className="w-full sm:w-auto"
+          size="sm"
           disabled={pending}
           onClick={onDelete}
         >
           {pending ? "Deleting..." : "Delete"}
         </Button>
       </div>
+      {error ? <p className="text-xs text-destructive">{error}</p> : null}
     </div>
   );
 }

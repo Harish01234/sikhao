@@ -28,13 +28,26 @@ export function CreateCourseForm({
     price: number;
   };
 }) {
+  return <CourseFields key={course?.id ?? "new"} course={course} />;
+}
+
+function CourseFields({
+  course,
+}: {
+  course?: {
+    id: string;
+    title: string;
+    description: string;
+    price: number;
+  };
+}) {
   const form = useForm<CreateCourseInput>({
     resolver: zodResolver(createCourseSchema),
     mode: "onChange",
     defaultValues: {
       title: course?.title ?? "",
       description: course?.description ?? "",
-      price: course?.price ?? 0,
+      price: course?.price,
     },
   });
 
@@ -86,6 +99,7 @@ export function CreateCourseForm({
                 type="number"
                 min="0"
                 step="0.01"
+                placeholder="0.00"
                 aria-invalid={Boolean(form.formState.errors.price)}
                 {...form.register("price", { valueAsNumber: true })}
               />
