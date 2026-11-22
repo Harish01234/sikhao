@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth-redirect"
 
 const items: AppNavItem[] = [
   { title: "Dashboard", href: "/admin/dashboard" },
+  { title: "People", href: "/admin/users" },
 ]
 
 export const instant = false
