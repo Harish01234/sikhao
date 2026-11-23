@@ -1,7 +1,4 @@
-import Link from "next/link";
-
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,8 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CourseCardActions } from "./course-card-actions";
+import { NewCourseButton } from "./new-course-button";
 import { getAuthSession } from "@/lib/auth-redirect";
-import { cn } from "@/lib/utils";
 import { prisma } from "@/src/lib/prisma";
 
 export const instant = false;
@@ -50,9 +47,7 @@ export default async function InstructorCoursesPage() {
                 : `${courses.length} ${courses.length === 1 ? "course" : "courses"}`}
             </p>
           </div>
-          <Link href="/instructor/courses/new" className={cn(buttonVariants(), "w-full sm:w-auto")}>
-            New course
-          </Link>
+          <NewCourseButton />
         </div>
         {courses.length === 0 ? (
           <Card>
