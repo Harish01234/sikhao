@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowRight, Pencil, Trash2 } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { deleteCourse } from "./actions";
 
-export function CourseCardActions({ courseId }: { courseId: string }) {
+export function CourseCardActions({ courseId, title }: { courseId: string; title: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -29,31 +30,34 @@ export function CourseCardActions({ courseId }: { courseId: string }) {
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col items-stretch gap-2 sm:items-end">
+      <div className="flex flex-wrap items-center gap-2">
         <Link
           href={`/instructor/courses/${courseId}/modules`}
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+          className={cn(buttonVariants(), "h-11 bg-primary hover:bg-primary hover:brightness-125")}
         >
           Modules
+          <ArrowRight />
         </Link>
         <Link
           href={`/instructor/courses/${courseId}/edit`}
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+          aria-label={`Edit ${title}`}
+          className={cn(buttonVariants({ variant: "outline" }), "size-11")}
         >
-          Edit
+          <Pencil />
         </Link>
         <Button
           type="button"
-          variant="destructive"
-          size="sm"
+          variant="outline"
+          aria-label={`Delete ${title}`}
           disabled={pending}
           onClick={onDelete}
+          className="size-11 text-foreground transition-colors duration-150 hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
         >
-          {pending ? "Deleting..." : "Delete"}
+          <Trash2 />
         </Button>
       </div>
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

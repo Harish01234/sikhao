@@ -31,6 +31,12 @@ export function PublicNavbar() {
           <BrandLogo className="h-7 sm:h-8" />
         </Link>
         <div className="hidden items-center gap-2 md:flex">
+          <Link
+            href="/course"
+            className="px-2.5 text-sm font-medium text-foreground"
+          >
+            Courses
+          </Link>
           <ThemeToggle />
           {user ? (
             <AccountMenu user={user} />
@@ -67,6 +73,13 @@ export function PublicNavbar() {
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-2 px-4">
+                <Link
+                  href="/course"
+                  onClick={() => setOpen(false)}
+                  className={cn(buttonVariants({ variant: "ghost" }), "justify-start")}
+                >
+                  Courses
+                </Link>
                 {user ? (
                   <AccountMenu user={user} trigger="sheet" />
                 ) : (

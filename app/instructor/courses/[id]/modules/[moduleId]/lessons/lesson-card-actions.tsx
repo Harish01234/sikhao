@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,10 +14,12 @@ export function LessonCardActions({
   courseId,
   moduleId,
   lessonId,
+  title,
 }: {
   courseId: string;
   moduleId: string;
   lessonId: string;
+  title: string;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -38,25 +41,27 @@ export function LessonCardActions({
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col items-end gap-2">
       <div className="flex items-center gap-2">
         <Link
           href={`/instructor/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/edit`}
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+          aria-label={`Edit ${title}`}
+          className={cn(buttonVariants({ variant: "outline" }), "size-11")}
         >
-          Edit
+          <Pencil />
         </Link>
         <Button
           type="button"
-          variant="destructive"
-          size="sm"
+          variant="outline"
+          aria-label={`Delete ${title}`}
           disabled={pending}
           onClick={onDelete}
+          className="size-11 text-foreground transition-colors duration-150 hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
         >
-          {pending ? "Deleting..." : "Delete"}
+          <Trash2 />
         </Button>
       </div>
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

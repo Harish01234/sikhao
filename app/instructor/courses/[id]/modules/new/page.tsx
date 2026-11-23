@@ -1,5 +1,6 @@
 import { requireOwnedCourse } from "../../course-access";
 
+import { CourseScreen } from "../../course-screen";
 import { ModuleForm } from "../module-form";
 
 export const instant = false;
@@ -16,10 +17,10 @@ export default async function NewModulePage({
   const course = await requireOwnedCourse(id);
 
   return (
-    <div className="flex justify-center bg-background px-4 py-6 text-foreground">
-      <div className="w-full max-w-md">
+    <CourseScreen back={{ href: `/instructor/courses/${course.id}/modules`, label: "Back" }}>
+      <div className="mx-auto w-full max-w-xl">
         <ModuleForm key={draft ?? "new"} courseId={course.id} />
       </div>
-    </div>
+    </CourseScreen>
   );
 }

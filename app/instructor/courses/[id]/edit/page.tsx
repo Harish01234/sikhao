@@ -4,6 +4,7 @@ import { getAuthSession } from "@/lib/auth-redirect";
 import { prisma } from "@/src/lib/prisma";
 
 import { CreateCourseForm } from "../../create-course-form";
+import { CourseScreen } from "../course-screen";
 
 export const instant = false;
 
@@ -28,8 +29,11 @@ export default async function EditCoursePage({
   }
 
   return (
-    <div className="flex justify-center bg-background px-4 py-6 text-foreground">
-      <div className="w-full max-w-md">
+    <CourseScreen
+      back={{ href: "/instructor/courses", label: "Back" }}
+      next={{ href: `/instructor/courses/${course.id}/modules`, label: "Next: Modules" }}
+    >
+      <div className="mx-auto w-full max-w-xl">
         <CreateCourseForm
           course={{
             id: course.id,
@@ -39,6 +43,6 @@ export default async function EditCoursePage({
           }}
         />
       </div>
-    </div>
+    </CourseScreen>
   );
 }

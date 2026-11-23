@@ -6,12 +6,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CourseCardActions } from "./course-card-actions";
-import { NewCourseButton } from "./new-course-button";
+import { cn } from "@/lib/utils";
 import { getAuthSession } from "@/lib/auth-redirect";
 import { prisma } from "@/src/lib/prisma";
 
+import { CourseCardActions } from "./course-card-actions";
+import { NewCourseButton } from "./new-course-button";
+
 export const instant = false;
+
+const pathCardClass =
+  "rounded-2xl border border-border bg-card shadow-lg ring-0 transition-all duration-150 hover:-translate-y-0.5 hover:border-primary/60";
 
 function coursePriceLabel(price: { toString(): string }) {
   const amount = Number(price.toString());
@@ -36,11 +41,14 @@ export default async function InstructorCoursesPage() {
     : [];
 
   return (
-    <div className="bg-background px-4 py-6 text-foreground">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-xl font-medium tracking-tight">Courses</h1>
+    <div className="bg-background px-4 py-10 text-foreground">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              Instructor
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
             <p className="text-sm text-muted-foreground">
               {courses.length === 0
                 ? "Courses you teach."
@@ -50,32 +58,48 @@ export default async function InstructorCoursesPage() {
           <NewCourseButton />
         </div>
         {courses.length === 0 ? (
-          <Card>
+          <Card className={pathCardClass}>
             <CardHeader>
               <CardTitle>No courses yet</CardTitle>
               <CardDescription>Create your first course to get started.</CardDescription>
             </CardHeader>
           </Card>
         ) : (
-          <div className="flex flex-col gap-3">
-            {courses.map((course) => (
-              <Card key={course.id} size="sm">
-                <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <h2 className="truncate text-base font-medium">{course.title}</h2>
-                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                      {course.description?.trim() || "No description yet"}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
-                    <Badge variant={Number(course.price) === 0 ? "secondary" : "outline"}>
-                      {coursePriceLabel(course.price)}
-                    </Badge>
-                    <CourseCardActions courseId={course.id} />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex flex-col gap-4">
+            {courses.map((course, index) => {
+              const free = Number(course.price) === 0;
+
+              return (
+                <Card key={course.id} className={pathCardClass}>
+                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 items-center gap-4">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-sm font-semibold text-[color-mix(in_oklab,var(--primary),white_60%)]">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <h2 className="truncate text-lg font-semibold">{course.title}</h2>
+                        <p className="line-clamp-2 text-sm text-muted-foreground">
+                          {course.description?.trim() || "No description yet"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                      <Badge
+                        className={cn(
+                          "h-6 border-transparent px-2",
+                          free
+                            ? "bg-muted text-muted-foreground"
+                            : "bg-primary/15 text-[color-mix(in_oklab,var(--primary),white_60%)]",
+                        )}
+                      >
+                        {coursePriceLabel(course.price)}
+                      </Badge>
+                      <CourseCardActions courseId={course.id} title={course.title} />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

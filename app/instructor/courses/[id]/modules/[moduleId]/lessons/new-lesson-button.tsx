@@ -17,7 +17,7 @@ export function NewLessonButton({
   return (
     <button
       type="button"
-      className={cn(buttonVariants(), "w-full sm:w-auto")}
+      className={cn(buttonVariants(), "h-11 w-full bg-primary hover:bg-primary hover:brightness-125 sm:w-auto")}
       onClick={() => {
         router.push(
           `/instructor/courses/${courseId}/modules/${moduleId}/lessons/new?draft=${crypto.randomUUID()}`,

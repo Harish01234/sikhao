@@ -1,22 +1,19 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 import { lessonSchema, type LessonInput } from "@/zodschemas/lesson-schema";
 
 import {
@@ -32,6 +29,9 @@ const typeItems = [
   { value: "video", label: "Video" },
   { value: "scorm", label: "SCORM" },
 ];
+
+const fieldClass =
+  "h-11 rounded-lg bg-input/30 transition-colors duration-150 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 aria-invalid:border-destructive";
 
 type LessonValues = {
   id: string;
@@ -173,7 +173,7 @@ function LessonFields({
             : "Create lesson";
 
   return (
-    <Card className="w-full">
+    <Card className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-lg ring-0">
       <CardHeader>
         <CardTitle>{lesson ? "Edit lesson" : "New lesson"}</CardTitle>
         <CardDescription>
@@ -182,87 +182,110 @@ function LessonFields({
             : "Add a title, choose video or SCORM, and upload the file."}
         </CardDescription>
       </CardHeader>
-      <form onSubmit={onSubmit}>
-        <CardContent>
-          <FieldGroup>
-            <Field data-invalid={Boolean(form.formState.errors.title)}>
-              <FieldLabel htmlFor="title">Title</FieldLabel>
-              <Input
-                id="title"
-                placeholder="Lesson title"
-                aria-invalid={Boolean(form.formState.errors.title)}
-                {...form.register("title")}
+      <Form {...form}>
+        <form onSubmit={onSubmit}>
+          <CardContent className="flex flex-col gap-6">
+            <section className="flex flex-col gap-4">
+              <h2 className="text-sm font-medium text-foreground">Details</h2>
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input className={fieldClass} {...field} />
+                    </FormControl>
+                    <FormDescription>The name learners will see for this lesson.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={[form.formState.errors.title]} />
-            </Field>
-            <Field data-invalid={Boolean(form.formState.errors.type)}>
-              <FieldLabel htmlFor="type">Type</FieldLabel>
-              <Controller
+              <FormField
                 control={form.control}
                 name="type"
                 render={({ field }) => (
-                  <Select
-                    items={typeItems}
-                    value={field.value}
-                    onValueChange={(value) => {
-                      if (value === "video" || value === "scorm") {
-                        field.onChange(value);
-                        if (fileRef.current) {
-                          fileRef.current.value = "";
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    <Select
+                      items={typeItems}
+                      value={field.value}
+                      onValueChange={(value) => {
+                        if (value === "video" || value === "scorm") {
+                          field.onChange(value);
+                          if (fileRef.current) {
+                            fileRef.current.value = "";
+                          }
                         }
-                      }
-                    }}
-                  >
-                    <SelectTrigger
-                      id="type"
-                      className="w-full"
-                      aria-invalid={Boolean(form.formState.errors.type)}
+                      }}
                     >
-                      <SelectValue placeholder="Choose a type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {typeItems.map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                      <FormControl>
+                        <SelectTrigger className={cn(fieldClass, "w-full")}>
+                          <SelectValue placeholder="Choose a type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {typeItems.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Video is one MP4. SCORM is a zip package.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <FieldError errors={[form.formState.errors.type]} />
-            </Field>
-            <Field data-invalid={Boolean(form.formState.errors.root)}>
-              <FieldLabel htmlFor="file">{type === "scorm" ? "SCORM package" : "Video"}</FieldLabel>
-              <Input
-                ref={fileRef}
-                id="file"
-                type="file"
-                accept={type === "scorm" ? ".zip,application/zip" : ".mp4,video/mp4"}
-                disabled={!type || phase !== "idle"}
-                aria-invalid={Boolean(form.formState.errors.root)}
-              />
-              <FieldDescription>
-                {!type
-                  ? "Choose a type first."
-                  : type === "scorm"
-                    ? hasFile
-                      ? "A SCORM package is already saved. Choose a new zip to replace it."
-                      : "Zip file with the SCORM manifest inside."
-                    : hasFile
-                      ? "A video is already saved. Choose a new MP4 to replace it."
-                      : "MP4 file."}
-              </FieldDescription>
-              <FieldError>{form.formState.errors.root?.message}</FieldError>
-            </Field>
-          </FieldGroup>
-        </CardContent>
-        <CardFooter className="border-t-0 bg-transparent">
-          <Button type="submit" className="w-full" disabled={phase !== "idle"}>
-            {buttonLabel}
-          </Button>
-        </CardFooter>
-      </form>
+            </section>
+            <section className="flex flex-col gap-4">
+              <h2 className="text-sm font-medium text-foreground">File</h2>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="lesson-file">{type === "scorm" ? "SCORM package" : "Video"}</Label>
+                <Input
+                  ref={fileRef}
+                  id="lesson-file"
+                  type="file"
+                  accept={type === "scorm" ? ".zip,application/zip" : ".mp4,video/mp4"}
+                  disabled={!type || phase !== "idle"}
+                  aria-invalid={Boolean(form.formState.errors.root)}
+                  className={fieldClass}
+                />
+                <p className="text-sm text-muted-foreground">
+                  {!type
+                    ? "Choose a type first."
+                    : type === "scorm"
+                      ? hasFile
+                        ? "A SCORM package is already saved. Choose a new zip to replace it."
+                        : "Zip file with the SCORM manifest inside."
+                      : hasFile
+                        ? "A video is already saved. Choose a new MP4 to replace it."
+                        : "MP4 file."}
+                </p>
+                {form.formState.errors.root?.message ? (
+                  <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
+                ) : null}
+              </div>
+            </section>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-2 border-t-0 bg-transparent sm:flex-row sm:justify-end">
+            <Link
+              href={`/instructor/courses/${courseId}/modules/${moduleId}/lessons`}
+              className={cn(buttonVariants({ variant: "ghost" }), "h-11 w-full sm:w-auto")}
+            >
+              Cancel
+            </Link>
+            <Button
+              type="submit"
+              className="h-11 w-full bg-primary hover:bg-primary hover:brightness-125 sm:w-auto"
+              disabled={phase !== "idle"}
+            >
+              {phase !== "idle" ? <Spinner /> : null}
+              {buttonLabel}
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
     </Card>
   );
 }

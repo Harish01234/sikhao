@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { requireOwnedCourse } from "../../../../../course-access";
 import { prisma } from "@/src/lib/prisma";
 
+import { CourseScreen } from "../../../../../course-screen";
 import { LessonForm } from "../../lesson-form";
 
 export const instant = false;
@@ -32,8 +33,13 @@ export default async function EditLessonPage({
   }
 
   return (
-    <div className="flex justify-center bg-background px-4 py-6 text-foreground">
-      <div className="w-full max-w-md">
+    <CourseScreen
+      back={{
+        href: `/instructor/courses/${course.id}/modules/${module.id}/lessons`,
+        label: "Back",
+      }}
+    >
+      <div className="mx-auto w-full max-w-xl">
         <LessonForm
           courseId={course.id}
           moduleId={module.id}
@@ -46,6 +52,6 @@ export default async function EditLessonPage({
           }}
         />
       </div>
-    </div>
+    </CourseScreen>
   );
 }
