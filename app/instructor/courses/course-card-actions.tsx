@@ -32,6 +32,12 @@ export function CourseCardActions({ courseId }: { courseId: string }) {
     <div className="flex flex-col items-end gap-1">
       <div className="flex items-center gap-2">
         <Link
+          href={`/instructor/courses/${courseId}/modules`}
+          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+        >
+          Modules
+        </Link>
+        <Link
           href={`/instructor/courses/${courseId}/edit`}
           className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
         >
