@@ -1,6 +1,10 @@
-export default function LearnerDashboardPage() {
+import { listMyCourses } from "./enrollments"
+import { MyCourses } from "./my-courses"
 
+export const instant = false
 
-     
-  return null;
+export default async function LearnerDashboardPage() {
+  const courses = await listMyCourses()
+
+  return <MyCourses courses={courses} />
 }
