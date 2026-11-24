@@ -124,8 +124,8 @@ export default async function LearnerCoursePage({
                         >
                           {lesson.type === "video" ? "Video" : "SCORM"}
                         </Badge>
-                        <button
-                          type="button"
+                        <Link
+                          href={`/learner/courses/${course.id}/lessons/${lesson.id}`}
                           aria-label={`Play ${lesson.title}`}
                           className={cn(
                             buttonVariants({ size: "icon" }),
@@ -133,7 +133,7 @@ export default async function LearnerCoursePage({
                           )}
                         >
                           <Play className="size-4 fill-current" />
-                        </button>
+                        </Link>
                       </div>
                     ))}
                   </div>
